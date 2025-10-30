@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layoutBase(~{::contenido}, ~{::scripts})}">
+
+<th:block th:fragment="contenido">
+
+    <div class="row g-3 mb-3">
+        <!-- izquierda imagen -->
+        <div class="col-xl-3 d-none d-xl-block">
+            <div class="side-image-card">
+                <img th:src="@{/assets/img/materiales-instalaciones-electricas-desktop.jpg}" alt="Inventarios">
+            </div>
+        </div>
+
+        <!-- centro métricas -->
+        <div class="col-xl-6 col-lg-12">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(160deg,#4f46e5,#6366f1);">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <p>Equipos</p>
+                            <h3 th:text="${totalEquipos} ?: 0">0</h3>
+                            <small>Total de equipos registrados.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(160deg,#f97316,#fb923c);">
+                            <i class="fas fa-right-from-bracket"></i>
+                        </div>
+                        <div class="stat-content">
+                            <p>Salidas</p>
+                            <h3 th:text="${salidasMes} ?: 0">0</h3>
+                            <small>En el mes actual.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(160deg,#10b981,#34d399);">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-content">
+                            <p>Valor</p>
+                            <h3 th:text="${montoTotal} ?: 0">0</h3>
+                            <small>Monto total registrado.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(160deg,#0ea5e9,#38bdf8);">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="stat-content">
+                            <p>Usuarios</p>
+                            <h3 th:text="${usuariosActivos} ?: 0">0</h3>
+                            <small>Con acceso al sistema.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-app p-3 mt-3">
+                <h5 class="mb-2"><i class="fas fa-chart-line me-2"></i>Resumen rápido</h5>
+                <p class="text-muted mb-3">Panel de control del inventario.</p>
+                <div class="alert alert-light border mb-0">
+                   
+                </div>
+            </div>
+        </div>
+
+        <!-- derecha imagen -->
+        <div class="col-xl-3 d-none d-xl-block">
+            <div class="side-image-card mb-3">
+                <img th:src="@{/assets/img/team-2.jpg}" alt="Equipo Promhil">
+            </div>
+        </div>
+    </div>
+
+    <th:block th:utext="${alert}"></th:block>
+</th:block>
+
+<th:block th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script th:inline="javascript">
+        let datosPorMes = /*[[${datosPorMes}]]*/[];
+        let labels = datosPorMes.map(d => {
+            const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            return meses[d.mes - 1];
+        });
+        let valores = datosPorMes.map(d => d.cantidad);
+    </script>
+
+    <script>
+        var ctx1 = document.getElementById("chart-line").getContext("2d");
+        var gradientStroke1 = ctx1.createLinearGradient(0, 230, 0, 50);
+        gradientStroke1.addColorStop(1, 'rgba(94, 114, 228, 0.2)');
+        gradientStroke1.addColorStop(0.2, 'rgba(94, 114, 228, 0.0)');
+        gradientStroke1.addColorStop(0, 'rgba(94, 114, 228, 0)');
+
+        new Chart(ctx1, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Salidas",
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    borderColor: "#5e72e4",
+                    backgroundColor: gradientStroke1,
+                    fill: true,
+                    data: valores,
+                    maxBarThickness: 6
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {legend: {display: false}},
+                interaction: {intersect: false, mode: 'index'},
+                scales: {
+                    y: {
+                        grid: {drawBorder: false, drawOnChartArea: true, borderDash: [5, 5]},
+                        ticks: {padding: 10, color: '#252f40', font: {size: 12}}
+                    },
+                    x: {
+                        grid: {display: false},
+                        ticks: {color: '#252f40', padding: 10, font: {size: 12}}
+                    }
+                },
+            },
+        });
+    </script>
+</th:block>
+
+</html>
