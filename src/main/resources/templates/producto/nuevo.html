@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="fragments/layout :: layoutBase(~{::contenido}, ~{::scripts})">
+<th:block th:fragment="contenido">
+
+    <div class="row g-3">
+        <!-- izq imagen -->
+        <div class="col-xl-3 d-none d-xl-block">
+            <div class="side-image-card">
+                <img th:src="@{/assets/img/promhil_portada.jpg}" alt="Nuevo producto">
+            </div>
+        </div>
+
+        <!-- centro -->
+        <div class="col-xl-6 col-lg-12">
+            <div class="card-app p-4">
+                <div class="page-title-row mb-3">
+                    <div>
+                        <h1>Producto nuevo</h1>
+                        <p>Registre un nuevo equipo eléctrico.</p>
+                    </div>
+                    <a th:href="@{/producto/listado}" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Volver al listado
+                    </a>
+                </div>
+
+                <form id="form" class="row g-3" method="post" novalidate th:object="${producto}"
+                      th:action="@{/producto/registrar}">
+
+                    <div class="col-md-12">
+                        <label class="form-label">Descripción</label>
+                        <input type="text" class="form-control" th:field="*{descripcion}"
+                               placeholder="Ingrese una descripción" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" th:field="*{stock}" placeholder="0" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Precio</label>
+                        <div class="input-group">
+                            <span class="input-group-text">S/.</span>
+                            <input class="form-control" type="number" step="0.01" th:field="*{precio}"
+                                   placeholder="Ej: 49.90">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Categoría</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-tags"></i></span>
+                            <select class="form-select" th:field="*{categoria}">
+                                <option value="" selected hidden>--Seleccione--</option>
+                                <option th:each="item:${lstCategoria}" th:value="${item.idCategoria}"
+                                        th:text="${item.descripcion}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Proveedor</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-truck-fast"></i></span>
+                            <select class="form-select" th:field="*{proveedor}">
+                                <option value="" selected hidden>--Seleccione--</option>
+                                <option th:each="item:${lstProveedor}" th:value="${item.idProveedor}"
+                                        th:text="${item.razonSocial}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-broom me-1"></i> Limpiar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Registrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- derecha imagen -->
+        <div class="col-xl-3 d-none d-xl-block">
+            <div class="side-image-card">
+                <img th:src="@{/assets/img/team-2.jpg}" alt="Equipo operativo">
+            </div>
+        </div>
+    </div>
+
+</th:block>
+<th:block th:fragment="scripts">
+    <script>
+        $(document).ready(function () {
+            $("#form").validate({
+                rules: {
+                    descripcion: {required: true},
+                    stock: {required: true, min: 1},
+                    precio: {required: true, min: 1},
+                    categoria: {required: true},
+                    proveedor: {required: true}
+                }
+            });
+        });
+    </script>
+</th:block>
+</html>

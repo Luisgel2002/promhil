@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layoutBase(~{::contenido}, ~{::scripts})}">
+
+<th:block th:fragment="contenido">
+    <div class="card-app p-3">
+        <div class="page-title-row">
+            <div>
+                <h1>Equipos eléctricos registrados</h1>
+                <p>Administre la base de equipos eléctricos por categoría y proveedor.</p>
+            </div>
+            <a th:href="@{/producto/nuevo}" class="btn btn-success">
+                <i class="fa-solid fa-plus me-1"></i> Nuevo equipo
+            </a>
+        </div>
+
+        <!-- filtros -->
+        <div class="form-section mb-3">
+            <form th:action="@{/producto/filtrar}" method="get" th:object="${filter}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Categoría técnica</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-chalkboard-user"></i></span>
+                            <select class="form-select" th:field="*{idCategoria}">
+                                <option value="">--Todas--</option>
+                                <option th:each="item:${lstCategoria}"
+                                        th:value="${item.idCategoria}"
+                                        th:text="${item.descripcion}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Proveedor / Suministrador</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-truck-fast"></i></span>
+                            <select class="form-select" th:field="*{idProveedor}">
+                                <option value="">--Todos--</option>
+                                <option th:each="item:${lstProveedor}"
+                                        th:value="${item.idProveedor}"
+                                        th:text="${item.razonSocial}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <button type="submit" class="btn btn-outline-dark me-1">
+                            <i class="fa-solid fa-binoculars me-1"></i> Buscar
+                        </button>
+                        <a th:href="@{/producto/listado}" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-broom me-1"></i> Limpiar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-responsive">
+            <table id="tbl-producto" class="table table-app">
+                <thead>
+                <tr>
+                    <th style="width:70px;">Id</th>
+                    <th>Descripción del equipo</th>
+                    <th class="text-end" style="width:90px;">Stock</th>
+                    <th class="text-end" style="width:120px;">Precio</th>
+                    <th style="width:180px;">Categoría</th>
+                    <th style="width:180px;">Proveedor</th>
+                    <th class="text-center" style="width:90px;">Estado</th>
+                    <th class="text-center" style="width:110px;">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item: ${lstProducto}">
+                    <td class="text-center" th:text="${item.idProducto}"></td>
+                    <td th:text="${item.descripcion}"></td>
+                    <td class="text-end" th:text="${item.stock}"></td>
+                    <td class="text-end" th:text="|S/. ${item.precio}|"></td>
+                    <td th:text="${item.categoria.descripcion}"></td>
+                    <td th:text="${item.proveedor.razonSocial}"></td>
+                    <td class="text-center">
+                        <span class="badge-status"
+                              th:text="${item.activo} ? 'Activo' : 'Inactivo'"></span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a th:href="@{/producto/edicion/{id}(id=${item.idProducto})}"
+                               class="btn btn-outline-secondary btn-sm" title="Editar">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </a>
+							<th:block th:if="${idTipo == 1}">
+							    <form method="post" th:action="@{/producto/cambiar-estado}">
+							        <input type="hidden" name="id" th:value="${item.idProducto}">
+							        <div class="form-check form-switch m-0">
+							            <input class="form-check-input" type="checkbox"
+							                   th:checked="${item.activo}"
+							                   onchange="this.form.submit()">
+							        </div>
+							    </form>
+							</th:block>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <th:block th:utext="${toast}"></th:block>
+</th:block>
+
+<th:block th:fragment="scripts">
+    <!-- IMPORTANTE: que Thymeleaf NO procese este script -->
+    <script th:inline="none">
+        $(function () {
+            $('#tbl-producto').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/2.3.4/i18n/es-ES.json',
+                    search: 'Filtrar: '
+                },
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                ordering: true,
+                order: [ [0, 'desc'] ],
+                responsive: true,
+                columnDefs: [
+                    { targets: [6, 7], orderable: false },
+                    { targets: [0, 2, 3, 4, 5, 6, 7], searchable: false }
+                ]
+            });
+        });
+    </script>
+</th:block>
+</html>
