@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="fragments/layout :: layoutBase(~{::contenido}, ~{::scripts})">
+
+<th:block th:fragment="contenido">
+    <div class="page-title-row">
+        <div>
+            <h1>Perfiles de usuarios</h1>
+            <p>Administre los usuarios del sistema.</p>
+        </div>
+    </div>
+
+    <div class="table-wrapper-card">
+        <table id="tabla-usuarios" class="table table-sm table-app align-middle">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Correo / cuenta</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th style="width:130px;">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${usuarios}">
+                <td th:text="${u.idUsuario}">1</td>
+                <td th:text="${u.nombres}">Admin</td>
+                <td th:text="${u.apellidos}">Promhil</td>
+                <td th:text="${u.cuenta}">admin@promhil.com</td>
+                <td th:text="${u.tipo.descripcion}">administrativo</td>
+                <td>
+                    <span th:if="${u.activo}" class="badge-status">Activo</span>
+                    <span th:if="${!u.activo}" class="badge bg-secondary">Inactivo</span>
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <a th:href="@{'/usuarios/editar/' + ${u.idUsuario}}"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+
+                        <!-- activar / desactivar -->
+                        <form th:action="@{'/usuarios/cambiar-estado/' + ${u.idUsuario}}" method="post">
+                            <button type="submit"
+                                    th:class="${u.activo} ?
+                                      'btn btn-sm btn-outline-danger' :
+                                      'btn btn-sm btn-outline-success'">
+                                <i th:class="${u.activo} ?
+                                  'fa-solid fa-toggle-off' :
+                                  'fa-solid fa-toggle-on'"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</th:block>
+
+<th:block th:fragment="scripts">
+    <script>
+        $(document).ready(function () {
+            $('#tabla-usuarios').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                lengthChange: true,
+            });
+        });
+    </script>
+</th:block>
+
+</html>

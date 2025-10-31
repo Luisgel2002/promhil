@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layoutBase(~{::contenido}, ~{::scripts})}">
+
+<th:block th:fragment="contenido">
+    <div class="card-app p-3">
+        <div class="page-title-row">
+            <div>
+                <h1>Movimientos / Salidas de equipos</h1>
+                <p>Listado de salidas registradas en el sistema.</p>
+            </div>
+            <a th:href="@{/boleta/nuevo}" class="btn btn-success">
+                <i class="fa-solid fa-plus me-1"></i> Nuevo movimiento
+            </a>
+        </div>
+
+        <div class="table-responsive mt-3">
+            <table id="tbl-boleta" class="table table-app align-middle">
+                <thead>
+                <tr>
+                    <th style="width: 70px;">N°</th>
+                    <th>Fecha de registro</th>
+                    <th>Registrado por</th>
+                    <th style="width: 140px;">Rol</th>
+                    <th class="text-end" style="width: 110px;">Total (S/.)</th>
+                    <th class="text-center" style="width: 70px;">PDF</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${lstBoleta}">
+                    <td class="text-center" th:text="${item.numBoleta}"></td>
+                    <td th:text="${#temporals.format(item.fechaRegistro, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                    <td th:text="${item.usuario.cuenta}"></td>
+                    <td>
+                        <span class="badge bg-secondary-subtle text-dark px-3 py-2 border"
+                              th:text="${item.usuario.tipo.descripcion}"></span>
+                    </td>
+                    <td class="text-end"
+                        th:text="|S/. ${#numbers.formatDecimal(item.total,1,'POINT',2,'POINT')}|"></td>
+                    <td class="text-center">
+                        <a th:href="@{/reporte/boleta(numBol=${item.numBoleta})}" target="_blank"
+                           class="btn btn-outline-danger btn-sm rounded-circle">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <th:block th:utext="${alert}"></th:block>
+</th:block>
+
+<th:block th:fragment="scripts">
+    <script th:inline="none">
+        $(function () {
+            $('#tbl-boleta').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/2.3.4/i18n/es-ES.json',
+                    search: 'Filtrar: '
+                },
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                ordering: true,
+                order: [ [0, 'desc'] ],
+                responsive: true,
+                columnDefs: [
+                    { targets: [2, 3], orderable: false },
+                    { targets: [0, 1, 4], searchable: false }
+                ]
+            });
+        });
+    </script>
+</th:block>
+</html>

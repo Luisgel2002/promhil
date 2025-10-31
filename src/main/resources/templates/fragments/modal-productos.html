@@ -1,0 +1,40 @@
+<div th:fragment="modal-productos(productos, idModal)" class="modal fade" th:id="${idModal}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Seleccionar producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tblSelectorProductos" class="table table-hover table-sm align-middle">
+                        <thead class="table-light text-center">
+                        <tr>
+                            <th style="width:70px;">Código</th>
+                            <th>Nombre</th>
+                            <th style="width:120px;">Precio</th>
+                            <th style="width:90px;">Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="prod : ${productos}">
+                            <td class="text-center" th:text="${prod.idProducto}"></td>
+                            <td th:text="${prod.descripcion}"></td>
+                            <td class="text-end"
+                                th:text="|S/. ${#numbers.formatDecimal(prod.precio,1,2,'POINT')}|"></td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-primary btn-sm btnSeleccionar"
+                                        th:data-id-producto="${prod.idProducto}"
+                                        th:data-descripcion="${prod.descripcion}"
+                                        th:data-precio="${prod.precio}">
+                                    Seleccionar
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

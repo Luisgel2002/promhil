@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="fragments/layout :: layoutBase(~{::contenido}, ~{::scripts})">
+
+<th:block th:fragment="contenido">
+    <div class="page-title-row">
+        <div>
+            <h1>Editar usuario</h1>
+            <p>Actualice los datos del usuario.</p>
+        </div>
+    </div>
+
+    <div class="form-box">
+        <form th:action="@{/usuarios/guardar}" method="post" th:object="${usuario}" class="row g-3">
+            <!-- id oculto -->
+            <input type="hidden" th:field="*{idUsuario}"/>
+
+            <div class="col-md-6">
+                <label class="form-label">Nombres</label>
+                <input type="text" class="form-control" th:field="*{nombres}" required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Apellidos</label>
+                <input type="text" class="form-control" th:field="*{apellidos}" required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Correo / cuenta</label>
+                <input type="email" class="form-control" th:field="*{cuenta}" required>
+            </div>
+
+            <!-- CONTRASEÑA -->
+            <div class="col-md-6">
+                <label class="form-label">Nueva contraseña</label>
+                <div class="input-group">
+                    <input id="clave" type="password" class="form-control" th:field="*{clave}">
+                    <button type="button" class="btn btn-outline-secondary"
+                            onclick="togglePassword('clave', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Rol</label>
+                <select name="idTipo" class="form-select">
+                    <option th:value="1"
+                            th:selected="${usuario.tipo != null and usuario.tipo.idTipo == 1}">
+                        Administrador
+                    </option>
+                    <option th:value="2"
+                            th:selected="${usuario.tipo != null and usuario.tipo.idTipo == 2}">
+                        Vendedor
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" th:field="*{activo}" id="activo">
+                    <label class="form-check-label" for="activo">Activo</label>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-app-primary">Guardar</button>
+                <a th:href="@{/usuarios}" class="btn btn-secondary ms-2">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</th:block>
+
+<th:block th:fragment="scripts">
+    <script th:inline="none">
+        function togglePassword(id, btn) {
+            const input = document.getElementById(id);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            }
+        }
+    </script>
+    <th:block th:utext="${toast}"></th:block>
+</th:block>
+
+</html>

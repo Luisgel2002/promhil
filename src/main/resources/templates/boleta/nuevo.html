@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="fragments/layout :: layoutBase(~{::contenido}, ~{::scripts})">
+
+<th:block th:fragment="contenido">
+
+    <div class="page-title-row mb-2">
+        <div>
+            <h1>Registro de salida de equipo</h1>
+            <p>Seleccione los equipos y confirme la salida.</p>
+        </div>
+        <form th:action="@{/boleta/registrar}" method="post">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Guardar salida
+            </button>
+        </form>
+    </div>
+
+    <!-- SECCIÓN 1: información y selección -->
+    <div class="form-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="mb-0"><strong>Fecha:</strong>
+                <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy')}"></span>
+            </p>
+            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalProductos">
+                <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar equipo
+            </button>
+        </div>
+
+		<form id="form" novalidate th:action="@{/boleta/agregar}" method="post"
+		      th:object="${productoSeleccionado}" class="needs-validation">
+		    <div class="row g-3 align-items-end">
+		        <div class="col-md-2">
+		            <label class="form-label">Código</label>
+		            <input type="text" class="form-control" th:field="*{idProducto}" id="idProducto" readonly>
+		        </div>
+		        <div class="col-md-4">
+		            <label class="form-label">Nombre del equipo</label>
+		            <input type="text" class="form-control" th:field="*{descripcion}" id="descripcion" readonly>
+		        </div>
+		        <div class="col-md-2">
+		            <label class="form-label">Precio / costo</label>
+		            <input type="text" class="form-control" th:field="*{precio}" id="precio">
+		        </div>
+		        <div class="col-md-2">
+		            <label class="form-label">Cantidad</label>
+		            <input type="number" class="form-control" th:field="*{cantidad}" id="cantidad">
+		        </div>
+		        <div class="col-md-2">
+		            <!-- deshabilitado al inicio -->
+		            <button id="btnAgregar" class="btn btn-success w-100" type="submit" disabled>
+		                <i class="fa-solid fa-plus me-1"></i> Agregar
+		            </button>
+		        </div>
+		    </div>
+		</form>
+    </div>
+
+    <!-- SECCIÓN 2: detalle -->
+    <div class="card-app p-3">
+        <h6 class="mb-3">Detalle de equipos en la salida</h6>
+        <div class="table-responsive">
+            <table class="table table-app">
+                <thead>
+                <tr>
+                    <th style="width: 90px;">Código</th>
+                    <th>Equipo</th>
+                    <th style="width: 130px;">Precio / costo</th>
+                    <th style="width: 90px;">Cantidad</th>
+                    <th style="width: 120px;">Subtotal</th>
+                    <th style="width: 80px;">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${lstSeleccionado}">
+                    <td th:text="${item.idProducto}"></td>
+                    <td th:text="${item.descripcion}"></td>
+                    <td th:text="${item.precio}"></td>
+                    <td th:text="${item.cantidad}"></td>
+                    <td th:text="${item.subtotal}"></td>
+                    <td>
+                        <form th:action="@{/boleta/quitar}" method="post">
+                            <input type="hidden" name="idProducto" th:value="${item.idProducto}"/>
+                            <button class="btn btn-danger btn-sm">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2">
+            <i class="fa-solid fa-circle-info me-1"></i>El total se calcula con los equipos agregados.
+        </p>
+    </div>
+
+    <!-- Modal -->
+    <div th:replace="fragments/modal-productos :: modal-productos(${productos}, 'modalProductos')"></div>
+
+    <th:block th:utext="${alert}"></th:block>
+</th:block>
+
+<th:block th:fragment="scripts">
+    <script>
+		$(document).on('click', '.btnSeleccionar', function () {
+		    const idProducto = $(this).data('id-producto');
+		    const descripcion = $(this).data('descripcion');
+		    const precio = $(this).data('precio');
+
+		    $('#idProducto').val(idProducto);
+		    $('#descripcion').val(descripcion);
+		    $('#precio').val(precio);
+		    $('#cantidad').val(1);
+
+		    $('#btnAgregar').prop('disabled', false);
+
+		    const modalEl = document.getElementById('modalProductos');
+		    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+		    modal.hide();
+		});
+
+		$('#idProducto').on('input', function () {
+		    const tieneValor = $(this).val() && $(this).val().trim() !== '';
+		    $('#btnAgregar').prop('disabled', !tieneValor);
+		});
+
+        $(document).ready(function () {
+            const idTabla = '#tblSelectorProductos';
+            if ($.fn.DataTable.isDataTable(idTabla)) {
+                $(idTabla).DataTable().destroy();
+            }
+            $('#tblSelectorProductos').DataTable({
+                lengthMenu: [5, 10],
+                pageLength: 5,
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/2.3.4/i18n/es-ES.json',
+                    search: "Filtro general :"
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            $("#form").validate({
+                rules: {
+                    idProducto: {required: true},
+                    descripcion: {required: true},
+                    cantidad: {required: true, min: 1},
+                    precio: {required: true, min: 1}
+                },
+                messages: {
+                    idProducto: {required: "campo requerido"},
+                    descripcion: {required: "campo requerido"},
+                    cantidad: {
+                        required: "campo requerido",
+                        min: "La cantidad mínima es 1"
+                    },
+                    precio: {
+                        required: "campo requerido",
+                        min: "El precio mínimo es 1"
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
+</html>
